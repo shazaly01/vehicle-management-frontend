@@ -17,20 +17,6 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <AppInput
-            id="driver-emp-code"
-            label="الرقم الوظيفي (كود الموظف)"
-            v-model="form.emp_code"
-            placeholder="ادخل الرقم المرجعي..."
-            dir="ltr"
-            required
-          />
-          <p v-if="serverErrors?.emp_code" class="text-rose-500 text-xs mt-1 font-bold">
-            {{ serverErrors.emp_code[0] }}
-          </p>
-        </div>
-
-        <div>
-          <AppInput
             id="driver-phone"
             label="رقم الجوال"
             v-model="form.phone"

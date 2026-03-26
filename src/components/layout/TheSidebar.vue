@@ -114,7 +114,12 @@ const route = useRoute()
 // --- [تعديل 2]: بنية البيانات الجديدة للقائمة الجانبية (Sidebar) ---
 const allNavLinks = shallowRef([
   { name: 'لوحة التحكم', routeName: 'Dashboard', icon: HomeIcon, permission: 'dashboard.view' },
-
+  {
+    name: 'لوحة مهام التوريد',
+    routeName: 'SupplierDashboard',
+    icon: TruckIcon,
+    permission: 'dispatch_order_trip.update_status',
+  },
   {
     name: 'البيانات الأساسية',
     icon: FolderOpenIcon,

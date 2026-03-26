@@ -5,15 +5,6 @@
         <span class="font-bold text-white">{{ item.name }}</span>
       </template>
 
-      <template #cell-emp_code="{ item }">
-        <span
-          dir="ltr"
-          class="bg-surface-ground px-2 py-1 rounded text-primary border border-surface-border font-mono"
-        >
-          {{ item.emp_code }}
-        </span>
-      </template>
-
       <template #cell-phone="{ item }">
         <span dir="ltr">{{ item.phone || '-' }}</span>
       </template>
@@ -85,7 +76,6 @@ defineEmits(['edit-driver', 'delete-driver', 'page-change', 'open-documents'])
 
 const headers = [
   { key: 'name', label: 'اسم السائق' },
-  { key: 'emp_code', label: 'الكود الوظيفي' },
   { key: 'phone', label: 'رقم الجوال' },
   { key: 'actions', label: 'الإجراءات', class: 'text-center', cellClass: 'text-center w-40' },
 ]

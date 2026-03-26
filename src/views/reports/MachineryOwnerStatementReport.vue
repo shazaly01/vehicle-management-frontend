@@ -3,165 +3,175 @@
     <div
       class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface-section/60 p-5 rounded-xl border border-surface-border shadow-lg"
     >
-      <h1 class="text-2xl font-black text-white tracking-tight">كشف حساب صاحب آلية</h1>
+      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+        <span class="p-2 bg-primary/20 rounded-lg">📊</span>
+        كشف حساب تفصيلي - مالك آليات
+      </h1>
 
-      <div class="flex flex-wrap items-end gap-3 w-full md:w-auto">
-        <div class="flex flex-wrap items-end gap-3 w-full md:w-auto">
-          <div v-if="!authStore.hasRole('Machinery Owner')" class="w-full md:w-64">
-            <MachineryOwnersDropdown
-              id="owner-report-filter"
-              label="اختر صاحب الآلية"
-              v-model="selectedOwnerId"
-            />
-          </div>
-
-          <div v-else class="bg-surface-ground/40 p-2.5 px-4 rounded-lg border border-primary/20">
-            <span class="text-xs text-gray-500 block mb-0.5">كشف حساب:</span>
-            <span class="text-white font-bold">{{ authStore.user?.full_name }}</span>
-          </div>
-
-          <AppButton
-            v-if="!authStore.hasRole('Machinery Owner')"
-            @click="loadStatement"
-            :disabled="!selectedOwnerId || loading"
-            class="bg-primary hover:bg-primary-dark text-white px-6"
-          >
-            <span v-if="loading">جاري الجلب...</span>
-            <span v-else>عرض الكشف</span>
-          </AppButton>
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div v-if="!authStore.hasRole('Machinery Owner')" class="w-full md:w-64">
+          <MachineryOwnersDropdown
+            id="owner-report-filter"
+            v-model="selectedOwnerId"
+            label="اختر صاحب الآلية"
+          />
+        </div>
+        <div v-else class="bg-surface-ground/40 p-2.5 px-4 rounded-lg border border-primary/20">
+          <span class="text-[10px] text-gray-500 block uppercase font-bold">حساب المالك:</span>
+          <span class="text-white font-bold">{{ authStore.user?.full_name }}</span>
         </div>
 
         <AppButton
           @click="loadStatement"
           :disabled="!selectedOwnerId || loading"
-          class="bg-primary hover:bg-primary-dark text-white px-6"
+          class="bg-primary hover:bg-primary-dark text-white px-6 shadow-lg shadow-primary/20"
         >
-          <span v-if="loading">جاري الجلب...</span>
-          <span v-else>عرض الكشف</span>
+          <span v-if="loading">⏳ جاري المعالجة...</span>
+          <span v-else>🔄 عرض البيانات</span>
         </AppButton>
 
         <AppButton
           v-if="machineryOwnerStatement"
           @click="handlePrint"
-          class="bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+          class="bg-indigo-500 hover:bg-indigo-400 text-white shadow-indigo-500/20"
         >
           <PrinterIcon class="w-5 h-5 ml-2 inline-block" />
-          طباعة
+          طباعة الكشف
         </AppButton>
       </div>
     </div>
 
     <div
       v-if="error"
-      class="bg-rose-900/30 text-rose-400 p-4 rounded-lg text-center border border-rose-700/50"
+      class="bg-rose-900/30 text-rose-400 p-4 rounded-lg text-center border border-rose-700/50 font-bold"
     >
-      {{ error }}
+      ⚠️ {{ error }}
     </div>
 
     <template v-if="machineryOwnerStatement">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <AppCard
-          class="relative overflow-hidden p-5 border-r-4 border-r-sky-400 bg-surface-section/60 shadow-[0_4_20px_rgba(0,0,0,0.3)]"
+          class="relative overflow-hidden p-5 border-r-4 border-r-sky-400 bg-surface-section/60 shadow-xl"
         >
-          <div class="text-xs text-sky-200/60 uppercase tracking-widest mb-2 font-bold">
-            إجمالي أرباح الآليات
+          <div class="text-[10px] text-sky-200/60 uppercase tracking-widest mb-2 font-black">
+            إجمالي المستحقات (قيمة العمل)
           </div>
-          <div class="text-2xl font-black text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]">
-            {{ formatCurrency(machineryOwnerStatement.financial_summary.total_earnings) }}
+          <div class="text-3xl font-black text-sky-400 tracking-tighter">
+            {{ formatCurrency(machineryOwnerStatement.summary.total_earnings) }}
           </div>
         </AppCard>
 
         <AppCard
-          class="relative overflow-hidden p-5 border-r-4 border-r-emerald-400 bg-surface-section/60 shadow-[0_4_20px_rgba(0,0,0,0.3)]"
+          class="relative overflow-hidden p-5 border-r-4 border-r-emerald-400 bg-surface-section/60 shadow-xl"
         >
-          <div class="text-xs text-emerald-200/60 uppercase tracking-widest mb-2 font-bold">
-            إجمالي الدفعات المستلمة
+          <div class="text-[10px] text-emerald-200/60 uppercase tracking-widest mb-2 font-black">
+            إجمالي المسحوبات (المدفوع له)
           </div>
-          <div
-            class="text-2xl font-black text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]"
-          >
-            {{ formatCurrency(machineryOwnerStatement.financial_summary.total_received) }}
+          <div class="text-3xl font-black text-emerald-400 tracking-tighter">
+            {{ formatCurrency(machineryOwnerStatement.summary.total_paid) }}
           </div>
         </AppCard>
 
         <AppCard
-          class="relative overflow-hidden p-5 border-r-4 border-r-rose-400 bg-surface-section/60 shadow-[0_4_20px_rgba(0,0,0,0.3)]"
+          class="relative overflow-hidden p-5 border-r-4 border-r-rose-400 bg-surface-section/60 shadow-xl"
         >
-          <div class="text-xs text-rose-200/60 uppercase tracking-widest mb-2 font-bold">
-            الرصيد الصافي (المتبقي له)
+          <div class="text-[10px] text-rose-200/60 uppercase tracking-widest mb-2 font-black">
+            صافي الرصيد (المتبقي له طرفنا)
           </div>
           <div
-            class="text-2xl font-black drop-shadow-[0_0_8px_rgba(251,113,133,0.8)]"
+            class="text-3xl font-black drop-shadow-md"
             :class="
-              machineryOwnerStatement.financial_summary.net_balance > 0
-                ? 'text-rose-400'
-                : 'text-gray-400'
+              machineryOwnerStatement.summary.net_balance > 0 ? 'text-rose-400' : 'text-gray-400'
             "
           >
-            {{ formatCurrency(machineryOwnerStatement.financial_summary.net_balance) }}
+            {{ formatCurrency(machineryOwnerStatement.summary.net_balance) }}
           </div>
         </AppCard>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <AppCard class="border border-gray-800 bg-surface-section/40">
-          <div
-            class="p-4 border-b border-gray-800 flex justify-between items-center bg-surface-ground/50"
-          >
-            <h3 class="font-bold text-sky-400">تفاصيل أرباح الآليات (من أوامر التشغيل المكتملة)</h3>
+        <AppCard class="border border-gray-800 bg-surface-section/40 overflow-hidden">
+          <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-sky-900/10">
+            <h3 class="font-black text-sky-400 flex items-center gap-2 text-sm uppercase">
+              🚛 سجل حركات الآليات (تفصيلي)
+            </h3>
           </div>
           <AppTable
-            :headers="machineryHeaders"
-            :items="machineryOwnerStatement.details.machineries_earnings"
+            :headers="workHeaders"
+            :items="machineryOwnerStatement.details.work_history"
             :is-loading="loading"
           >
-            <template #cell-plate_number_or_name="{ item }">
-              <span class="font-bold text-white">{{ item.plate_number_or_name }}</span>
+            <template #cell-date="{ item }">
+              <span class="text-[10px] text-gray-400 font-mono">{{ formatDate(item.date) }}</span>
             </template>
-            <template #cell-total_earnings="{ item }">
-              <span class="text-sky-300 font-bold drop-shadow-[0_0_5px_rgba(56,189,248,0.2)]">
-                {{ formatCurrency(item.total_earnings) }}
+            <template #cell-machinery="{ item }">
+              <span class="font-bold text-white text-xs">{{ item.machinery }}</span>
+            </template>
+            <template #cell-description="{ item }">
+              <span class="text-[10px] text-gray-400 italic">{{ item.description }}</span>
+            </template>
+            <template #cell-earnings="{ item }">
+              <span class="text-sky-300 font-black tracking-tight">
+                {{ formatCurrency(item.earnings) }}
               </span>
             </template>
           </AppTable>
         </AppCard>
 
-        <AppCard class="border border-gray-800 bg-surface-section/40">
+        <AppCard class="border border-gray-800 bg-surface-section/40 overflow-hidden">
           <div
-            class="p-4 border-b border-gray-800 flex justify-between items-center bg-surface-ground/50"
+            class="p-4 border-b border-gray-800 flex justify-between items-center bg-emerald-900/10"
           >
-            <h3 class="font-bold text-emerald-400">سجل الدفعات المستلمة (المعاملات المالية)</h3>
+            <h3 class="font-black text-emerald-400 flex items-center gap-2 text-sm uppercase">
+              💸 سجل المدفوعات والمسحوبات
+            </h3>
           </div>
           <AppTable
             :headers="transactionHeaders"
-            :items="machineryOwnerStatement.details.financial_transactions"
+            :items="machineryOwnerStatement.details.financial_history"
             :is-loading="loading"
           >
-            <template #cell-transaction_no="{ item }">
-              <span class="font-mono text-gray-300">#{{ item.transaction_no }}</span>
-            </template>
-            <template #cell-transaction_type="{ item }">
-              <span class="text-gray-400 text-sm">{{ item.transaction_type }}</span>
+            <template #cell-date="{ item }">
+              <span class="text-[10px] text-gray-400 font-mono">{{ formatDate(item.date) }}</span>
             </template>
             <template #cell-amount="{ item }">
-              <span class="text-emerald-400 font-bold">{{ formatCurrency(item.amount) }}</span>
+              <span
+                class="text-emerald-400 font-black tracking-tight"
+                :class="item.type === 'receipt' ? 'text-teal-400' : 'text-emerald-400'"
+              >
+                {{ item.type === 'receipt' ? '+' : '' }}{{ formatCurrency(item.amount) }}
+              </span>
             </template>
-            <template #cell-created_at="{ item }">
-              <span class="text-xs text-gray-500">{{ formatDate(item.created_at) }}</span>
+            <template #cell-type="{ item }">
+              <span
+                class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest"
+                :class="
+                  item.type === 'payment'
+                    ? 'bg-rose-900/20 text-rose-400 border border-rose-800'
+                    : 'bg-teal-900/20 text-teal-400 border border-teal-800'
+                "
+              >
+                {{ item.type === 'payment' ? 'صرف' : 'قبض' }}
+              </span>
             </template>
           </AppTable>
         </AppCard>
       </div>
     </template>
+
+    <div v-else-if="!loading" class="flex flex-col items-center justify-center py-24 opacity-30">
+      <div class="text-6xl mb-4">🔍</div>
+      <p class="text-white font-bold tracking-widest">اختر مالكاً لعرض كشف الحساب</p>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useReportStore } from '@/stores/reportStore'
-// افتراض أن لديك store لأصحاب الآليات لملء القائمة المنسدلة
 import { useMachineryOwnerStore } from '@/stores/machineryOwnerStore'
+import { useAuthStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { PrinterIcon } from '@heroicons/vue/24/outline'
@@ -169,8 +179,6 @@ import { PrinterIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppTable from '@/components/ui/AppTable.vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import { useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
 import MachineryOwnersDropdown from '@/components/forms/MachineryOwnersDropdown.vue'
 
 const authStore = useAuthStore()
@@ -180,22 +188,22 @@ const reportStore = useReportStore()
 const machineryOwnerStore = useMachineryOwnerStore()
 
 const { machineryOwnerStatement, loading, error } = storeToRefs(reportStore)
-const { machineryOwners } = storeToRefs(machineryOwnerStore)
-
 const selectedOwnerId = ref('')
 
-// رؤوس الجداول
-const machineryHeaders = [
-  { key: 'plate_number_or_name', label: 'الآلية (اللوحة / الاسم)' },
-  { key: 'total_earnings', label: 'إجمالي الأرباح المحققة' },
+// رؤوس جداول العمل (Trip based)
+const workHeaders = [
+  { key: 'date', label: 'التاريخ' },
+  { key: 'machinery', label: 'الآلية' },
+  { key: 'description', label: 'البيان' },
+  { key: 'earnings', label: 'الاستحقاق (د.ل)' },
 ]
 
+// رؤوس جداول المالية
 const transactionHeaders = [
-  { key: 'transaction_no', label: 'رقم السند' },
-  { key: 'transaction_type', label: 'نوع الدفعة' },
+  { key: 'date', label: 'التاريخ' },
   { key: 'description', label: 'البيان' },
-  { key: 'amount', label: 'المبلغ المستلم' },
-  { key: 'created_at', label: 'التاريخ' },
+  { key: 'amount', label: 'المبلغ' },
+  { key: 'type', label: 'النوع' },
 ]
 
 const loadStatement = () => {
@@ -204,35 +212,27 @@ const loadStatement = () => {
   }
 }
 
-// دالة الطباعة المجهزة مسبقاً
 const handlePrint = () => {
   if (!machineryOwnerStatement.value) return
-
+  // تخزين البيانات للطباعة
   sessionStorage.setItem('printOwnerStatementData', JSON.stringify(machineryOwnerStatement.value))
-
-  // سنقوم بإنشاء مسار PrintMachineryOwnerStatement لاحقاً
   const routeData = router.resolve({ name: 'PrintMachineryOwnerStatement' })
   window.open(routeData.href, '_blank')
 }
 
 onMounted(async () => {
-  // الحالة أ: الدخول عبر رابط مباشر (للإدارة)
+  // التحقق من الهوية والتحميل التلقائي
   if (route.params.id) {
     selectedOwnerId.value = route.params.id
     loadStatement()
-  }
-  // الحالة ب: الدخول كصاحب آلية (تلقائي)
-  else if (authStore.hasRole('Machinery Owner')) {
+  } else if (authStore.hasRole('Machinery Owner')) {
     const ownerId = authStore.user?.machinery_owner?.id
     if (ownerId) {
       selectedOwnerId.value = ownerId
-      loadStatement() // تحميل البيانات فوراً
-    } else {
-      console.error('خطأ: لم يتم العثور على ملف مالك مرتبط بهذا المستخدم')
+      loadStatement()
     }
   }
 
-  // جلب القائمة فقط إذا كان المستخدم إدارياً (لمنع الـ 403)
   if (!authStore.hasRole('Machinery Owner')) {
     await machineryOwnerStore.fetchMachineryOwners(1, '', { limit: 1000 })
   }
@@ -241,9 +241,9 @@ onMounted(async () => {
 
 <style scoped>
 :deep(.AppTable th) {
-  @apply text-gray-400 font-bold uppercase tracking-wider text-xs border-b border-gray-800;
+  @apply text-gray-500 font-black uppercase tracking-tighter text-[10px] border-b border-gray-800 bg-surface-ground/30;
 }
 :deep(.AppTable td) {
-  @apply py-3 border-b border-gray-800/50;
+  @apply py-2 border-b border-gray-800/30;
 }
 </style>

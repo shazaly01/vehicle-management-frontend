@@ -2,6 +2,7 @@
   <AppModal
     :is-open="isOpen"
     :title="isEditing ? 'تعديل إذن التشغيل' : 'إنشاء إذن تشغيل (أمر عمل) جديد'"
+    max-width="max-w-5xl"
     @close="handleClose"
   >
     <DispatchOrderForm

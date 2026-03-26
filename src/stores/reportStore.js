@@ -1,10 +1,9 @@
-//src\stores\reportStore.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import reportService from '@/services/ReportService'
 
 export const useReportStore = defineStore('report', () => {
-  // --- States لكل تقرير على حدة ---
+  // --- States ---
   const suppliersSummary = ref(null)
   const supplierStatement = ref(null)
   const machineryOwnerStatement = ref(null)
@@ -13,12 +12,18 @@ export const useReportStore = defineStore('report', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  // 1. جلب ملخص الموردين
-  async function fetchSuppliersSummary() {
+  // وظيفة مساعدة لتصفير الأخطاء والبدء في التحميل
+  const startLoading = () => {
     loading.value = true
     error.value = null
+  }
+
+  // 1. جلب ملخص الموردين العام
+  async function fetchSuppliersSummary() {
+    startLoading()
     try {
       const response = await reportService.getSuppliersSummary()
+      // لارافيل يرجع response()->json([...]) لذا نأخذ response.data مباشرة
       suppliersSummary.value = response.data
     } catch (err) {
       error.value = 'فشل في جلب ملخص الموردين.'
@@ -28,14 +33,19 @@ export const useReportStore = defineStore('report', () => {
     }
   }
 
-  // 2. جلب كشف حساب مورد محدد
+  // 2. جلب كشف حساب مورد (نظام التوريدات والمالية الجديد)
   async function fetchSupplierStatement(supplierId) {
-    loading.value = true
-    error.value = null
-    supplierStatement.value = null // تصفير الكشف القديم
+    startLoading()
+    supplierStatement.value = null // تصفير إجباري لضمان تحديث الواجهة
     try {
       const response = await reportService.getSupplierStatement(supplierId)
-      supplierStatement.value = response.data
+
+      // نتحقق من وجود البيانات المطلوبة قبل الإسناد
+      if (response.data && response.data.details) {
+        supplierStatement.value = response.data
+      } else {
+        error.value = 'البيانات المستلمة غير مكتملة.'
+      }
     } catch (err) {
       error.value = 'فشل في جلب كشف حساب المورد.'
       console.error(err)
@@ -44,20 +54,22 @@ export const useReportStore = defineStore('report', () => {
     }
   }
 
-  // 3. جلب كشف حساب صاحب آلية محدد
-  // جلب كشف حساب صاحب آلية محدد
+  // 3. جلب كشف حساب صاحب آلية (نظام الحشر والعمل الميداني)
   async function fetchMachineryOwnerStatement(ownerId) {
-    loading.value = true
-    error.value = null
-    machineryOwnerStatement.value = null // تصفير القديم
+    startLoading()
+    machineryOwnerStatement.value = null // تصفير إجباري
     try {
       const response = await reportService.getMachineryOwnerStatement(ownerId)
 
-      // جرب تغييرها إلى .data.data إذا كنت تستخدم Resources في لارافيل
-      // أو اتركها .data إذا كنت ترجع response()->json([...]) مباشرة
-      machineryOwnerStatement.value = response.data.data || response.data
+      // في الـ Controller نستخدم response()->json مباشرة، لذا نأخذ response.data
+      // إذا كان الكنترولر يلف البيانات في resource، نستخدم response.data.data
+      const data = response.data.data || response.data
 
-      console.log('البيانات المستلمة في الستور:', machineryOwnerStatement.value) // للتأكد
+      if (data && data.details) {
+        machineryOwnerStatement.value = data
+      } else {
+        error.value = 'لم يتم العثور على سجلات لهذا المالك.'
+      }
     } catch (err) {
       error.value = 'فشل في جلب كشف حساب صاحب الآلية.'
       console.error(err)
@@ -66,10 +78,9 @@ export const useReportStore = defineStore('report', () => {
     }
   }
 
-  // 4. جلب تقرير المشاريع (مع دعم الفلاتر)
+  // 4. جلب تقرير المشاريع
   async function fetchProjectsReport(filters = {}) {
-    loading.value = true
-    error.value = null
+    startLoading()
     try {
       const response = await reportService.getProjectsReport(filters)
       projectsReport.value = response.data

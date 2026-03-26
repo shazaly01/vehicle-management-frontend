@@ -88,7 +88,7 @@ import Dropdown from 'primevue/dropdown'
 
 defineProps({
   id: { type: String, required: true },
-  label: { type: String, default: '' },
+  // label: { type: String, default: '' },
   modelValue: { type: [String, Number], default: '' },
   options: { type: Array, default: () => [] },
   optionLabel: { type: String, default: 'name' },

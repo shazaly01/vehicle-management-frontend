@@ -22,7 +22,10 @@
           >
             <div
               v-if="isOpen"
-              class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-surface-section border border-surface-border p-6 text-right align-middle shadow-xl transition-all"
+              :class="[
+                'w-full transform overflow-hidden rounded-2xl bg-surface-section border border-surface-border p-6 text-right align-middle shadow-xl transition-all',
+                maxWidth,
+              ]"
             >
               <div
                 class="flex items-center justify-between mb-6 border-b border-surface-border pb-4"
@@ -70,11 +73,15 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  // التعديل هنا: إضافة الـ prop الجديد
+  maxWidth: {
+    type: String,
+    default: 'max-w-2xl', // القيمة الافتراضية
+  },
 })
 
 defineEmits(['close'])
 
-// منع التمرير (Scroll) في الخلفية عند فتح المودال
 const toggleScroll = (disable) => {
   document.body.style.overflow = disable ? 'hidden' : ''
 }

@@ -1,171 +1,147 @@
 <template>
   <div
-    class="min-h-screen bg-gray-200 py-8 print:py-0 print:bg-white flex justify-center dir-rtl font-sans text-gray-900"
+    class="min-h-screen bg-slate-100 py-10 print:py-0 print:bg-white flex justify-center font-sans"
     dir="rtl"
   >
     <div
-      class="bg-white w-[210mm] min-h-[148mm] p-10 shadow-2xl print:shadow-none print:w-full print:h-auto print:p-0 relative flex flex-col border-2 border-transparent print:border-gray-200"
+      class="bg-white w-[210mm] min-h-[297mm] shadow-2xl print:shadow-none print:w-full flex flex-col text-slate-900 relative border-t-[8px]"
+      :class="isReceipt ? 'border-emerald-600' : 'border-rose-600'"
     >
-      <div class="print:hidden absolute top-4 left-4 flex gap-4">
+      <div class="print:hidden absolute -left-20 top-0 flex flex-col gap-2">
         <button
           @click="window.print()"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md font-bold transition-colors flex items-center gap-2"
+          class="bg-slate-800 text-white p-4 rounded-xl shadow-xl hover:bg-slate-700 transition-all"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
               d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-            ></path>
+              stroke-width="2"
+            />
           </svg>
-          طباعة
-        </button>
-        <button
-          @click="closeTab"
-          class="bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 px-6 py-2 rounded-lg shadow-sm font-bold transition-colors"
-        >
-          إغلاق
         </button>
       </div>
 
-      <div v-if="loading" class="flex justify-center items-center h-full print:hidden flex-1 py-20">
-        <div class="animate-pulse flex flex-col items-center">
-          <div class="h-12 w-12 bg-gray-300 rounded-full mb-4"></div>
-          <span class="text-xl font-bold text-gray-500">جاري تجهيز السند...</span>
-        </div>
+      <div v-if="loading" class="flex flex-col justify-center items-center h-[200mm]">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-800 mb-4"></div>
+        <p class="font-bold">جاري تجهيز السند...</p>
       </div>
 
-      <div v-else-if="transaction" class="flex flex-col flex-1">
-        <header
-          class="flex justify-between items-start mb-8 border-b-2 pb-4"
-          :class="isReceipt ? 'border-green-600' : 'border-rose-700'"
-        >
-          <div class="flex items-center gap-4">
-            <div
-              class="w-20 h-20 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-gray-400 font-bold text-sm"
+      <div v-else-if="transaction" class="flex flex-col flex-1 p-8 md:p-12">
+        <header class="flex flex-col items-center mb-12 relative">
+          <div class="absolute top-1/2 left-0 w-[30%] h-[1px] bg-slate-200 hidden md:block"></div>
+          <div class="absolute top-1/2 right-0 w-[30%] h-[1px] bg-slate-200 hidden md:block"></div>
+
+          <img
+            src="/MainLogo.png"
+            alt="Logo"
+            class="h-36 object-contain relative z-10 mb-4 px-6 bg-white"
+          />
+
+          <div class="text-center space-y-1">
+            <h1
+              class="text-3xl font-black tracking-[0.1em] text-slate-800"
+              :class="isReceipt ? 'text-emerald-700' : 'text-rose-700'"
             >
-              شعار الشركة
-            </div>
-            <div>
-              <h1
-                class="text-2xl font-black tracking-tight"
-                :class="isReceipt ? 'text-green-700' : 'text-rose-700'"
-              >
-                {{ isReceipt ? 'سند قبض' : 'سند صرف' }}
-              </h1>
-              <p class="text-gray-500 mt-1 text-sm font-medium">
-                شركة حركة الآليات والمعدات للتجارة والمقاولات
-              </p>
-            </div>
+              {{ isReceipt ? 'سند قبض مالي' : 'سند صرف مالي' }}
+            </h1>
+            <p class="text-[10px] font-bold text-slate-400 tracking-[0.4em] uppercase">
+              Voucher Management System
+            </p>
           </div>
+        </header>
 
-          <div class="text-left flex flex-col gap-2">
-            <div class="flex items-center justify-end gap-2 text-lg">
-              <span class="text-gray-500 font-medium text-sm">رقم السند:</span>
-              <span class="font-bold text-gray-900" dir="ltr">{{
-                transaction.transaction_no
-              }}</span>
+        <div class="flex justify-between items-start mb-10 border-b border-slate-100 pb-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <span class="text-xs font-black text-slate-400 uppercase">رقم السند:</span>
+              <span class="text-2xl font-mono font-black text-slate-900" dir="ltr"
+                >#{{ transaction.transaction_no }}</span
+              >
             </div>
-            <div class="flex items-center justify-end gap-2 text-lg">
-              <span class="text-gray-500 font-medium text-sm">التاريخ:</span>
-              <span class="font-bold text-gray-900">{{
+            <div class="flex items-center gap-4">
+              <span class="text-xs font-black text-slate-400 uppercase">التاريخ:</span>
+              <span class="text-lg font-bold text-slate-700">{{
                 formatDate(transaction.date || transaction.created_at)
               }}</span>
             </div>
           </div>
-        </header>
 
-        <div class="flex items-center gap-6 mb-8">
           <div
-            class="border-2 p-4 rounded-xl min-w-[200px] text-center bg-gray-50"
-            :class="isReceipt ? 'border-green-200 text-green-800' : 'border-rose-200 text-rose-800'"
+            class="bg-slate-50 border-2 rounded-2xl p-5 flex flex-col items-center min-w-[220px]"
+            :class="isReceipt ? 'border-emerald-100' : 'border-rose-100'"
           >
-            <div class="text-sm font-bold mb-1">المبلغ (ر.س)</div>
-            <div class="text-3xl font-black" dir="ltr">
+            <span class="text-[10px] font-black text-slate-400 uppercase mb-1"
+              >المبلغ الإجمالي / Total Amount</span
+            >
+            <div class="text-3xl font-black text-slate-900" dir="ltr">
               {{ formatCurrency(transaction.amount) }}
             </div>
           </div>
+        </div>
 
-          <div class="flex-1 bg-gray-50 p-4 rounded-xl border border-gray-200 flex items-center">
-            <div class="text-lg">
-              <span class="text-gray-500 font-medium ml-2">طريقة الدفع / الخزينة:</span>
-              <span class="font-bold text-gray-900">{{
-                transaction.treasury?.name || 'غير محدد'
+        <main class="flex-1 space-y-12 py-4">
+          <div class="flex items-baseline gap-4 border-b border-slate-100 pb-3">
+            <span class="text-sm font-black text-slate-400 whitespace-nowrap">{{
+              isReceipt ? 'استلمنا من السيد:' : 'صرفنا إلى السيد:'
+            }}</span>
+            <span class="text-2xl font-bold text-slate-900">{{ getPartyName(transaction) }}</span>
+            <span
+              class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold mr-auto tracking-widest uppercase"
+            >
+              {{ getPartyLabel(transaction) }}
+            </span>
+          </div>
+
+          <div class="flex items-baseline gap-4 border-b border-slate-100 pb-3">
+            <span class="text-sm font-black text-slate-400 whitespace-nowrap"
+              >مبلغ وقدره نصاً:</span
+            >
+            <p class="text-xl font-bold text-slate-800 italic decoration-emerald-500">
+              {{ amountInArabicWords }} فقط لا غير.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="border-b border-slate-100 pb-3">
+              <span class="text-xs font-black text-slate-400 block mb-2">طريقة الدفع:</span>
+              <span class="text-lg font-bold text-slate-800">{{
+                transaction.treasury?.name || 'نقداً / خزينة الشركة'
               }}</span>
             </div>
+            <div class="border-b border-slate-100 pb-3">
+              <span class="text-xs font-black text-slate-400 block mb-2">وذلك مقابل:</span>
+              <p class="text-lg font-semibold text-slate-700">
+                {{ transaction.description || 'تغطية حسابات تجارية جارية' }}
+              </p>
+            </div>
           </div>
-        </div>
+        </main>
 
-        <div class="space-y-6 text-lg leading-relaxed mb-8">
-          <div class="flex items-baseline border-b border-gray-300 pb-2">
-            <span class="font-bold text-gray-700 w-32 shrink-0">{{
-              isReceipt ? 'استلمنا من:' : 'صرفنا إلى:'
-            }}</span>
-            <span class="font-black text-xl text-gray-900 flex-1">{{
-              getPartyName(transaction)
-            }}</span>
-            <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{
-              getPartyLabel(transaction)
-            }}</span>
-          </div>
-
-          <div class="flex items-baseline border-b border-gray-300 pb-2">
-            <span class="font-bold text-gray-700 w-32 shrink-0">مبلغ وقدره:</span>
-            <span class="font-bold text-gray-900 flex-1"
-              >فقط {{ formatCurrency(transaction.amount) }} ريال سعودي لا غير.</span
-            >
-          </div>
-
-          <div class="flex items-start border-b border-gray-300 pb-2">
-            <span class="font-bold text-gray-700 w-32 shrink-0">وذلك عن:</span>
-            <span class="font-semibold text-gray-900 flex-1 whitespace-pre-wrap">{{
-              transaction.description || 'لا يوجد تفاصيل إضافية'
-            }}</span>
-          </div>
-        </div>
-
-        <div class="flex-grow"></div>
-
-        <div class="mt-12 pt-8 grid grid-cols-3 gap-8 text-center">
-          <div class="flex flex-col items-center">
-            <p class="font-bold text-gray-700 mb-12">المحاسب</p>
-            <div class="border-b-2 border-dashed border-gray-400 w-40"></div>
-          </div>
-          <div class="flex flex-col items-center">
-            <p class="font-bold text-gray-700 mb-12">المدير المالي / الإدارة</p>
-            <div class="border-b-2 border-dashed border-gray-400 w-40"></div>
-          </div>
-          <div class="flex flex-col items-center">
-            <p class="font-bold text-gray-700 mb-12">
-              {{ isReceipt ? 'توقيع المستلم (الشركة)' : 'توقيع المستفيد' }}
+        <section class="mt-20 grid grid-cols-3 gap-12 text-center">
+          <div
+            v-for="role in [
+              'المحاسب المراجع',
+              'المدير المالي',
+              isReceipt ? 'أمين الصندوق' : 'المستلم',
+            ]"
+            :key="role"
+          >
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-12">
+              {{ role }}
             </p>
-            <div class="border-b-2 border-dashed border-gray-400 w-40"></div>
+            <div class="w-full border-t border-slate-300"></div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div v-else class="flex flex-col justify-center items-center h-full print:hidden flex-1">
-        <svg
-          class="w-16 h-16 text-red-400 mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <footer
+          class="mt-auto pt-8 flex justify-between items-center text-[9px] font-bold text-slate-400 border-t border-slate-100 uppercase tracking-widest"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <span class="text-xl font-bold text-gray-800 mb-2">تعذر تحميل بيانات المعاملة</span>
-        <button
-          @click="closeTab"
-          class="bg-gray-800 hover:bg-gray-900 text-white px-8 py-2 rounded-lg font-medium mt-4"
-        >
-          عودة
-        </button>
+          <div>
+            Printed: {{ new Date().toLocaleString('ar-SA') }} | Security ID: {{ transaction.id }}
+          </div>
+          <div class="italic">Authorized by {{ authStore?.user?.name }}</div>
+          <div>Page 1 of 1</div>
+        </footer>
       </div>
     </div>
   </div>
@@ -175,76 +151,57 @@
 import { onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-// استدعاء مخزن المعاملات المالية
 import { useFinancialTransactionStore } from '@/stores/financialTransactionStore'
+import { useAuthStore } from '@/stores/authStore'
 import { formatCurrency, formatDate } from '@/utils/formatters'
+import { tafkeet } from '@/utils/tafkeetLibyan' // سنقوم بإنشاء هذا الملف الآن
 
 const route = useRoute()
 const transactionStore = useFinancialTransactionStore()
+const authStore = useAuthStore()
 
-// استخراج المعاملة الحالية (يجب أن تتأكد أن المخزن الخاص بك يحتوي على currentTransaction و fetchTransaction)
 const { currentTransaction: transaction, loading } = storeToRefs(transactionStore)
-const window = globalThis.window
 
-// دوال مساعدة لتحديد نوع السند
-const isReceipt = computed(() => {
-  return transaction.value?.transaction_type === 'receipt'
+const isReceipt = computed(() => transaction.value?.transaction_type === 'receipt')
+
+// --- محرك تحويل الرقم إلى كلمات بالدينار الليبي ---
+const amountInArabicWords = computed(() => {
+  if (!transaction.value?.amount) return '................'
+  return tafkeet(transaction.value.amount)
 })
 
-// استخراج اسم المستفيد/الدافع ديناميكياً
-const getPartyName = (txn) => {
-  if (txn.supplier_id && txn.supplier) return txn.supplier.name
-  if (txn.machinery_owner_id && txn.machinery_owner) return txn.machinery_owner.name
-  if (txn.project_id && txn.project) return txn.project.name
-  if (txn.related_entity && txn.related_entity.name) return txn.related_entity.name
-  return 'غير محدد'
-}
-
-// استخراج وصف أو صفة المستفيد/الدافع
+const getPartyName = (txn) =>
+  txn.related_entity?.name || txn.related_entity_name || '................'
 const getPartyLabel = (txn) => {
-  if (txn.supplier_id) return 'مورد / عميل'
-  if (txn.machinery_owner_id) return 'مالك معدة'
-  if (txn.project_id) return 'مشروع'
-  return 'جهة مرتبطة'
+  const type = txn.related_entity_type || ''
+  if (type.includes('Supplier')) return 'مورد'
+  if (type.includes('MachineryOwner')) return 'مالك'
+  if (type.includes('Project')) return 'مشروع'
+  return 'جهة تعامل'
 }
 
 const fetchTransactionDetails = async () => {
-  const transactionId = route.params.id
-  if (!transactionId) return
-
-  try {
-    // استدعاء دالة جلب معاملة واحدة من المخزن
-    await transactionStore.fetchTransaction(transactionId)
-
-    if (transaction.value) {
-      setTimeout(() => {
-        window.print()
-      }, 700)
-    }
-  } catch (error) {
-    console.error('Error fetching transaction details for print:', error)
-  }
+  const id = route.params.id
+  if (!id) return
+  await transactionStore.fetchTransaction(id)
+  if (transaction.value) setTimeout(() => window.print(), 1500)
 }
 
-const closeTab = () => {
-  window.close()
-}
-
-onMounted(() => {
-  fetchTransactionDetails()
-})
+onMounted(fetchTransactionDetails)
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+* {
+  font-family: 'Tajawal', sans-serif;
+}
 @media print {
   @page {
-    margin: 0;
-    /* استخدمنا A5 ليكون حجم السند أصغر وأكثر واقعية للسندات المالية، ويمكن تغييره إلى A4 إذا أردت */
-    size: A5 landscape;
+    size: A4 portrait;
+    margin: 10mm;
   }
   body {
     -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 }
 </style>

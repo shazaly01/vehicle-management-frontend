@@ -92,6 +92,15 @@ const routes = [
         meta: { permission: 'supplier.view' },
       },
       {
+        path: '/supplier/dashboard',
+        name: 'SupplierDashboard',
+        component: () => import('@/views/suppliers/SupplierDashboard.vue'),
+        meta: {
+          requiresAuth: true,
+          role: 'Supplier', // حماية المسار بحيث لا يدخله إلا المورد
+        },
+      },
+      {
         path: 'drivers',
         name: 'DriversList',
         component: DriversList,

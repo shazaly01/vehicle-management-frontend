@@ -1,8 +1,9 @@
+<!--src\views\dispatch_orders\DispatchOrdersList.vue-->
 <template>
   <div>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-white">إدارة أوامر التشغيل (أذونات الخروج)</h1>
-      <AppButton v-if="authStore.can('dispatch_order.create')" @click="openModal()">
+      <AppButton v-if="authStore.can('dispatch_order.create')" @click="openModal(null)">
         إضافة إذن جديد
       </AppButton>
     </div>
@@ -98,12 +99,19 @@ onMounted(() => {
 const isModalOpen = ref(false)
 const selectedOrder = ref(null)
 
-const openModal = (order = null) => {
-  if (order && !authStore.can('dispatch_order.update')) {
-    toast.error('ليس لديك الصلاحية لتعديل أمر التشغيل هذا.')
-    return
+const openModal = async (order = null) => {
+  if (order) {
+    // بدلاً من أخذ بيانات الجدول، نطلب الأمر كاملاً بشاحناته من الباك-إند
+    try {
+      await dispatchOrderStore.fetchOrder(order.id)
+      selectedOrder.value = dispatchOrderStore.currentOrder
+    } catch (err) {
+      toast.error('حدث خطأ أثناء جلب بيانات الشاحنات')
+      return
+    }
+  } else {
+    selectedOrder.value = null
   }
-  selectedOrder.value = order ? { ...order } : null
   isModalOpen.value = true
 }
 

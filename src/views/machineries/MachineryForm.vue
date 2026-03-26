@@ -26,6 +26,18 @@
             {{ serverErrors.owner_id[0] }}
           </p>
         </div>
+
+        <div>
+          <DriversDropdown
+            id="machinery-driver-id"
+            label="سائق الآلية"
+            v-model="form.driver_id"
+            required
+          />
+          <p v-if="serverErrors?.driver_id" class="text-rose-500 text-xs mt-1 font-bold">
+            {{ serverErrors.driver_id[0] }}
+          </p>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -88,6 +100,7 @@ import AppInput from '@/components/ui/AppInput.vue'
 import AppDropdown from '@/components/ui/AppDropdown.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import MachineryOwnersDropdown from '@/components/forms/MachineryOwnersDropdown.vue'
+import DriversDropdown from '@/components/forms/DriversDropdown.vue'
 
 const props = defineProps({
   initialData: { type: Object, default: null },
@@ -118,6 +131,7 @@ const createFreshForm = () => ({
   owner_id: '',
   status: 'available', // القيمة الافتراضية عند الإضافة
   cost_type: 'trip',
+  driver_id: '',
 })
 
 const form = ref(createFreshForm())
@@ -131,6 +145,7 @@ watch(
         plate_number_or_name: newData.plate_number_or_name,
         type: newData.type || '',
         owner_id: newData.owner_id || newData.machinery_owner?.id || '',
+        driver_id: newData.driver_id || newData.driver?.id || '',
         status: newData.status || 'available',
         cost_type: newData.cost_type || 'trip',
       }
