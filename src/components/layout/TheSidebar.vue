@@ -8,7 +8,7 @@
         <!-- [تعديل 1]: يمكنك تغيير الأيقونة هنا -->
         <img src="/MainLogo2.png" alt="Project Logo" class="w-8 h-8 rounded-md" />
         <!-- [تعديل 2]: تغيير اسم المشروع -->
-        <h1 class="text-xl font-bold text-text-primary">ادارة اللاليات</h1>
+        <h1 class="text-xl font-bold text-text-primary">ادارة الاليات</h1>
       </RouterLink>
       <button
         @click="$emit('close-sidebar')"
